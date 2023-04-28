@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YouTube</title>
+    <style>
+      * {
+        margin: 5px 0;
+      }
+
+      body {
+        text-align: center;
+      }
+
+      #search {
+        width: 66%;
+        height: 40px;
+        margin: 10px 0;
+        border-radius: 100px;
+        border: solid grey;
+      }
+
+      .video-div {
+        background-color: red;
+        width: 33%;
+      }
+
+      #video-divs {
+        display: flex;
+        flex-wrap: wrap;
+        text-align: left;
+      }
+
+      img {
+        width: 90%;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="search-form">
+      <input id="search" placeholder="Search" type="text" />
+    </form>
+    <div id="video-divs"></div>
+
+    <script>
+      var seachForm = document.querySelector("#seach-form");
+      seachForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+          if (this.readyState == 4 && this.status == 200) {
+            // Typical action to be performed when the document is ready:
+            // parse the video and return snippets
+            var res = JSON.parse(xhttp.responseText);
+            var videoData = res.items.map(function (item) {
+              return item.snippet;
+            });
+            // select our container to start appending
+            var container = document.querySelector("#video-divs");
+            container.innerHTML = "";
+            // loop over the snippets for render on page
+            videoData.forEach(function (video) {
+              console.log(video);
+              // create container for each video
+              var videoDiv = document.createElement("div");
+              videoDiv.className.add("video-div");
+              videoDiv.innerHTML = `
+                            <img src=${video.thumbnails.default.url}>
+                            <h4>${video.title}</h4>
+                            <p>${video.channelTitle}</p>
+                            <p>${new Date(
+                              video.publishTime
+                            ).toLocaleDateString()}</p>
+                        `;
+              container.appendChild(videoDiv);
+            });
+          }
+        };
+        var textValue = document.querySelector("#search").value;
+        xhttp.open(
+          "GET",
+          `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${textValue}&maxResults=9&key=AIzaSyDwjpf6yf_EFWqCqk60bZmmkLMasIPhhNQ`,
+          true
+        );
+        xhttp.send();
+      });
+    </script>
+  </body>
+</html>
